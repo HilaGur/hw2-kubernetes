@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: csepod
+spec:
+  selector:
+    matchLabels:
+      run: csepod
+  minReadySeconds: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: csepod
+    spec:
+      containers:
+      - name: csepod
+        image: tslilgr/hw2_kube:custom-nginx-v2
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 50m
+          requests:
+            cpu: 40m
+

@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: csepod
+spec:
+  selector:
+    matchLabels:
+      run: csepod
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: csepod
+    spec:
+      containers:
+      - name: csepod
+        image: tslilgr/hw2_kube:custom-nginx-v1
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 50m
+          requests:
+            cpu: 40m
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: csepod
+  labels:
+    run: csepod
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 30555
+  selector:
+    run: csepod
+
+---
+
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: csepod
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: csepod
+  minReplicas: 1
+  maxReplicas: 100
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
